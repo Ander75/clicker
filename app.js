@@ -9,7 +9,9 @@ const config = require('./config'); // Import configuration
 // Middleware configuration
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/', express.static('public'));
+
+// Serve all files in the public directory statically
+app.use(express.static('public'));
 
 // CORS headers configuration
 app.use((req, res, next) => {
@@ -18,12 +20,9 @@ app.use((req, res, next) => {
     next();
 });
 
-// Base route to serve index.html
-app.get('/click', (req, res) => {
-    res.type('html');
-    res.sendFile('index.html', { 
-        root: __dirname + '/public'
-    });
+// Route par défaut pour toutes les autres requêtes - redirige vers index.html
+app.get('*', (req, res) => {
+    res.sendFile('index.html', { root: './public' });
 });
 
 // MySQL database configuration
