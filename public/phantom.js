@@ -13,14 +13,56 @@ class Phantom {
 
     // Verify if a session already exists
     checkExistingSession() {
-        const session = localStorage.getItem('wallet_session');
-        if (session) {
-            const { address, signature } = JSON.parse(session);
-            this.walletAddress = address;
-            this.signature = signature;
-            return true;
+        // Vérifier d'abord les cookies
+        const sessionCookie = this.getCookie('wallet_session');
+        if (sessionCookie) {
+            try {
+                const { address, signature } = JSON.parse(sessionCookie);
+                this.walletAddress = address;
+                this.signature = signature;
+                return true;
+            } catch (error) {
+                console.error('Error parsing session cookie:', error);
+            }
         }
+
+        // Vérifier ensuite localStorage comme fallback
+        const localSession = localStorage.getItem('wallet_session');
+        if (localSession) {
+            try {
+                const { address, signature } = JSON.parse(localSession);
+                this.walletAddress = address;
+                this.signature = signature;
+                // Synchroniser avec les cookies
+                this.setCookie('wallet_session', localSession);
+                return true;
+            } catch (error) {
+                console.error('Error parsing local session:', error);
+            }
+        }
+
         return false;
+    }
+
+    // Helpers for cookies
+    setCookie(name, value, days = 7) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        const expires = "; expires=" + date.toUTCString();
+        document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/";
+    }
+
+    getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for(let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) {
+                return decodeURIComponent(c.substring(nameEQ.length, c.length));
+            }
+        }
+        return null;
     }
 
     async connectWallet() {
@@ -46,7 +88,9 @@ class Phantom {
             };
             
             // 5. Save the session information in the localStorage
-            localStorage.setItem('wallet_session', JSON.stringify(sessionData));
+            const sessionStr = JSON.stringify(sessionData);
+            localStorage.setItem('wallet_session', sessionStr);
+            this.setCookie('wallet_session', sessionStr);
             
             // 6. Update the class state
             this.walletAddress = walletAddress;
@@ -82,7 +126,9 @@ class Phantom {
             await this.provider.disconnect();
             this.walletAddress = null;
             this.signature = null;
+            // Nettoyer localStorage ET cookies
             localStorage.removeItem('wallet_session');
+            document.cookie = 'wallet_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
             return { success: true };
         } catch (error) {
             console.error("Error disconnecting from Phantom wallet:", error);

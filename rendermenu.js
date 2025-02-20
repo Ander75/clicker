@@ -83,6 +83,13 @@ class MenuRenderer {
                     box-shadow: 0 0 0 2px #b18597, 0 0 #ffe3e2;
                     transform: translate3d(0, 0, -1em);
                 }
+
+                @media (max-width: 768px) {
+                    .menu-logo {
+                        height: 30px;
+                        width: auto;
+                    }
+                }
             `,
             template: `
                 <div class="menu-container">
