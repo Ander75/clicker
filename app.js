@@ -8,7 +8,7 @@ const web3 = require('@solana/web3.js');
 // Configuration des middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
+app.use('/', express.static('public'));
 
 // Configuration des en-têtes CORS
 app.use((req, res, next) => {
@@ -19,7 +19,10 @@ app.use((req, res, next) => {
 
 // Route de base pour servir index.html
 app.get('/click', (req, res) => {
-    res.sendFile('index.html', { root: './public' });
+    res.type('html');
+    res.sendFile('index.html', { 
+        root: __dirname + '/public'
+    });
 });
 
 // Configuration de la base de données MySQL
