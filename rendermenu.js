@@ -5,11 +5,19 @@ class MenuRenderer {
             styles: `
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap');
 
+                .menu-container {
+                    width: 100%;
+                    max-width: 800px;
+                    margin: 0 auto;
+                    padding: 0 20px;
+                }
+
                 .menu-wrapper {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
                     padding: 1rem;
+                    width: 100%;
                 }
 
                 .menu-logo {
@@ -77,11 +85,13 @@ class MenuRenderer {
                 }
             `,
             template: `
-                <div class="menu-wrapper">
-                    <img src="{{logo}}" alt="Blast Logo" class="menu-logo">
-                    <button class="connect-wallet-btn">
-                        CONNECT WALLET
-                    </button>
+                <div class="menu-container">
+                    <div class="menu-wrapper">
+                        <img src="{{logo}}" alt="Blast Logo" class="menu-logo">
+                        <button class="connect-wallet-btn">
+                            CONNECT WALLET
+                        </button>
+                    </div>
                 </div>
             `
         };

@@ -15,14 +15,6 @@ class MenuController {
                 .then(menuData => res.json(menuData))
                 .catch(error => res.status(500).json({ error: error.message }));
         });
-
-        // POST wallet connection
-        this.router.post('/connect-wallet', (req, res) => {
-            const { walletAddress } = req.body;
-            this.menuService.handleWalletConnection(walletAddress)
-                .then(result => res.json(result))
-                .catch(error => res.status(500).json({ error: error.message }));
-        });
     }
 
     getRouter() {

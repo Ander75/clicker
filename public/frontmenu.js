@@ -29,21 +29,26 @@ class FrontMenu {
         this.initializeEventListeners();
     }
 
-    initializeEventListeners() {
+    async initializeEventListeners() {
         const connectWalletBtn = document.querySelector('.connect-wallet-btn');
         connectWalletBtn.addEventListener('click', async () => {
             try {
-                const response = await fetch('/click/api/menu/connect-wallet', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ walletAddress: 'example_address' })
-                });
-                const result = await response.json();
-                console.log('Wallet connection result:', result);
+                // Vérifier si Phantom est disponible
+                if (!window.phantomWallet) {
+                    throw new Error("Phantom wallet is not initialized!");
+                }
+
+                const result = await window.phantomWallet.connectWallet();
+                console.log('Wallet connected:', result.address);
+                
+                // Update the UI if necessary
+                connectWalletBtn.textContent = 'CONNECTED';
+                connectWalletBtn.style.background = '#90EE90';
+                
             } catch (error) {
                 console.error('Error connecting wallet:', error);
+                connectWalletBtn.textContent = 'ERROR CONNECTING';
+                connectWalletBtn.style.background = '#FFB6C1';
             }
         });
     }

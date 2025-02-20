@@ -14,15 +14,6 @@ class MenuService {
             styles: menuHTML.styles
         };
     }
-
-    async handleWalletConnection(walletAddress) {
-        // Handle wallet connection logic
-        return {
-            success: true,
-            message: 'Wallet connected successfully',
-            address: walletAddress
-        };
-    }
 }
 
 module.exports = MenuService;
