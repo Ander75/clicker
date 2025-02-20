@@ -31,7 +31,7 @@ app.use((req, res, next) => {
 });
 
 // Serve static files
-app.use('/', express.static(path.join(__dirname, 'public')));
+app.use('/click', express.static(path.join(__dirname, 'public')));
 
 // MySQL database configuration
 const db = mysql.createConnection(config.database);
@@ -60,8 +60,8 @@ app.get('/main.css', (req, res) => {
     res.sendFile('main.css', { root: path.join(__dirname, 'public') });
 });
 
-// Route pour toutes les autres requêtes - doit être APRÈS express.static
-app.get('*', (req, res) => {
+// Route pour toutes les autres requêtes sous /click
+app.get('/click/*', (req, res) => {
     res.sendFile('index.html', { root: path.join(__dirname, 'public') });
 });
 
