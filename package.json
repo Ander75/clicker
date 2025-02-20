@@ -1,7 +1,12 @@
 {
   "name": "prism",
-  "version": "0.1",
+  "version": "0.1.0",
   "description": "prism",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
   "dependencies": {
     "express": "^4.18.2",
     "socket.io": "^4.6.1",
