@@ -11,8 +11,14 @@ const path = require('path');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve all files in the public directory statically
-app.use(express.static('public'));
+// Logging middleware pour déboguer
+app.use((req, res, next) => {
+    console.log('Request URL:', req.url);
+    next();
+});
+
+// Servir les fichiers statiques
+app.use(express.static(path.join(__dirname, 'public')));
 
 // CORS headers configuration
 app.use((req, res, next) => {
@@ -21,8 +27,9 @@ app.use((req, res, next) => {
     next();
 });
 
-// Route par défaut pour toutes les autres requêtes - redirige vers index.html
+// Route catch-all
 app.get('*', (req, res) => {
+    console.log('Serving index.html for path:', req.url);
     res.sendFile('index.html', { root: './public' });
 });
 
