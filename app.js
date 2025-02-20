@@ -4,21 +4,21 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const mysql = require('mysql2');
 const web3 = require('@solana/web3.js');
-const config = require('./config'); // Importation de la configuration
+const config = require('./config'); // Import configuration
 
-// Configuration des middlewares
+// Middleware configuration
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/', express.static('public'));
 
-// Configuration des en-têtes CORS
+// CORS headers configuration
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     next();
 });
 
-// Route de base pour servir index.html
+// Base route to serve index.html
 app.get('/click', (req, res) => {
     res.type('html');
     res.sendFile('index.html', { 
@@ -26,38 +26,38 @@ app.get('/click', (req, res) => {
     });
 });
 
-// Configuration de la base de données MySQL
+// MySQL database configuration
 const db = mysql.createConnection(config.database);
 
-// Connexion à la base de données
+// Database connection
 db.connect((err) => {
     if (err) {
-        console.error('Erreur de connexion à la base de données:', err);
+        console.error('Database connection error:', err);
         return;
     }
-    console.log('Connecté à la base de données MySQL');
+    console.log('Connected to MySQL database');
 });
 
-// Configuration Socket.io
+// Socket.io configuration
 io.on('connection', (socket) => {
-    console.log('Un client est connecté');
+    console.log('A client has connected');
     
     socket.on('disconnect', () => {
-        console.log('Un client s\'est déconnecté');
+        console.log('A client has disconnected');
     });
 });
 
-// Démarrage du serveur
+// Server startup
 const PORT = config.server.port;
 http.listen(PORT, () => {
-    console.log(`Serveur démarré sur le port ${PORT}`);
+    console.log(`Server started on port ${PORT}`);
 });
 
-// Gestion des erreurs globales
+// Global error handling
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({
-        message: 'Une erreur est survenue sur le serveur',
+        message: 'A server error occurred',
         error: process.env.NODE_ENV === 'development' ? err : {}
     });
 });
