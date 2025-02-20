@@ -8,23 +8,20 @@ const config = require('./config'); // Import configuration
 const path = require('path');
 const fs = require('fs');
 
-// Middleware configuration
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
 // Configuration du logging
 const logStream = fs.createWriteStream(path.join(__dirname, 'passenger.log'), { flags: 'a' });
 
-// Middleware de logging
+// Base middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Logging middleware
 app.use((req, res, next) => {
     const logMessage = `[${new Date().toISOString()}] ${req.method} ${req.url}\n`;
     logStream.write(logMessage);
-    console.log(logMessage); // Garde aussi l'affichage dans la console
+    console.log(logMessage); // Keep also the console output
     next();
 });
-
-// Servir les fichiers statiques
-app.use(express.static(path.join(__dirname, 'public')));
 
 // CORS headers configuration
 app.use((req, res, next) => {
@@ -33,11 +30,8 @@ app.use((req, res, next) => {
     next();
 });
 
-// Route catch-all
-app.get('*', (req, res) => {
-    console.log('Serving index.html for path:', req.url);
-    res.sendFile('index.html', { root: './public' });
-});
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
 
 // MySQL database configuration
 const db = mysql.createConnection(config.database);
@@ -60,10 +54,9 @@ io.on('connection', (socket) => {
     });
 });
 
-// Server startup
-const PORT = config.server.port;
-http.listen(PORT, () => {
-    console.log(`Server started on port ${PORT}`);
+// Route catch-all
+app.get('*', (req, res) => {
+    res.sendFile('index.html', { root: path.join(__dirname, 'public') });
 });
 
 // Gestion des erreurs avec logging
@@ -75,4 +68,10 @@ app.use((err, req, res, next) => {
         message: 'Une erreur est survenue',
         error: process.env.NODE_ENV === 'development' ? err : {}
     });
+});
+
+// Server startup
+const PORT = config.server.port;
+http.listen(PORT, () => {
+    console.log(`Server started on port ${PORT}`);
 });
