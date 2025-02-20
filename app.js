@@ -65,9 +65,37 @@ class App {
 
     initializeSocketIO() {
         this.io.on('connection', (socket) => {
-            console.log('A client has connected');
+            console.log('Client connected:', socket.id);
+
+            // Gestion of the wallet initialization
+            socket.on('wallet:init', (data) => {
+                console.log('Wallet initialized:', data.address);
+                socket.walletData = data;
+            });
+
+            // Gestion of the wallet connection
+            socket.on('wallet:connected', (data) => {
+                console.log('Wallet connected:', data.address);
+                socket.walletData = data;
+            });
+
+            // Gestion of the wallet change
+            socket.on('wallet:changed', (data) => {
+                console.log('Wallet changed:', data);
+                // Inform the other components of the server
+                this.menuController.handleWalletChange(data);
+            });
+
+            // Periodic wallet verification
+            const verifyInterval = setInterval(() => {
+                if (socket.walletData) {
+                    socket.emit('wallet:verify');
+                }
+            }, 5000); // Verify every 5 seconds
+
             socket.on('disconnect', () => {
-                console.log('A client has disconnected');
+                console.log('Client disconnected:', socket.id);
+                clearInterval(verifyInterval);
             });
         });
     }
