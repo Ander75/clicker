@@ -19,7 +19,7 @@ app.use((req, res, next) => {
 });
 
 // Route de base pour servir index.html
-app.get('/', (req, res) => {
+app.get('/click', (req, res) => {
     res.sendFile('index.html', { root: './public' });
 });
 
