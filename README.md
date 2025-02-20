@@ -1,10 +1,4 @@
-# git
- Clicker game on Solana
-
-# Installation
-
-1. Clone the repository
-2. Install dependencies
-3. Start the server
-
 # Blowfish commitment for whitelist on Solana
+
+This repository is exclusively dedicated to Blowfish and contains proprietary code for a Solana-based Clicker game with integrated betting mechanics. 
+For authorized Blowfish personnel only.
