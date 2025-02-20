@@ -5,13 +5,14 @@ const io = require('socket.io')(http);
 const mysql = require('mysql2');
 const web3 = require('@solana/web3.js');
 const config = require('./config'); // Import configuration
+const path = require('path');
 
 // Middleware configuration
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve all files in the public directory statically
-app.use(express.static('public'));
+app.use('/', express.static(path.join(__dirname, 'public')));
 
 // CORS headers configuration
 app.use((req, res, next) => {
