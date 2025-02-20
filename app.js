@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve all files in the public directory statically
-app.use('/', express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 
 // CORS headers configuration
 app.use((req, res, next) => {
