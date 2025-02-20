@@ -6,14 +6,20 @@ const mysql = require('mysql2');
 const web3 = require('@solana/web3.js');
 const config = require('./config'); // Import configuration
 const path = require('path');
+const fs = require('fs');
 
 // Middleware configuration
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Logging middleware pour déboguer
+// Configuration du logging
+const logStream = fs.createWriteStream(path.join(__dirname, 'passenger.log'), { flags: 'a' });
+
+// Middleware de logging
 app.use((req, res, next) => {
-    console.log('Request URL:', req.url);
+    const logMessage = `[${new Date().toISOString()}] ${req.method} ${req.url}\n`;
+    logStream.write(logMessage);
+    console.log(logMessage); // Garde aussi l'affichage dans la console
     next();
 });
 
@@ -60,11 +66,13 @@ http.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`);
 });
 
-// Global error handling
+// Gestion des erreurs avec logging
 app.use((err, req, res, next) => {
-    console.error(err.stack);
+    const errorMessage = `[${new Date().toISOString()}] ERROR: ${err.stack}\n`;
+    logStream.write(errorMessage);
+    console.error(errorMessage);
     res.status(500).json({
-        message: 'A server error occurred',
+        message: 'Une erreur est survenue',
         error: process.env.NODE_ENV === 'development' ? err : {}
     });
 });
