@@ -4,6 +4,7 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const mysql = require('mysql2');
 const web3 = require('@solana/web3.js');
+const config = require('./config'); // Importation de la configuration
 
 // Configuration des middlewares
 app.use(express.json());
@@ -26,12 +27,7 @@ app.get('/click', (req, res) => {
 });
 
 // Configuration de la base de données MySQL
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'votre_utilisateur',
-    password: 'votre_mot_de_passe',
-    database: 'votre_base_de_donnees'
-});
+const db = mysql.createConnection(config.database);
 
 // Connexion à la base de données
 db.connect((err) => {
@@ -52,7 +48,7 @@ io.on('connection', (socket) => {
 });
 
 // Démarrage du serveur
-const PORT = process.env.PORT || 3000;
+const PORT = config.server.port;
 http.listen(PORT, () => {
     console.log(`Serveur démarré sur le port ${PORT}`);
 });
