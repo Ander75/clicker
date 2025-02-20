@@ -54,7 +54,13 @@ io.on('connection', (socket) => {
     });
 });
 
-// Route catch-all
+// Route spécifique pour main.css
+app.get('/main.css', (req, res) => {
+    res.setHeader('Content-Type', 'text/css');
+    res.sendFile('main.css', { root: path.join(__dirname, 'public') });
+});
+
+// Route pour index.html
 app.get('*', (req, res) => {
     res.sendFile('index.html', { root: path.join(__dirname, 'public') });
 });
