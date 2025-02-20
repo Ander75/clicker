@@ -7,6 +7,7 @@ const config = require('./config');
 const path = require('path');
 const fs = require('fs');
 const CardController = require('./controllercards');
+const MenuController = require('./controllermenu');
 
 class App {
     constructor() {
@@ -14,6 +15,7 @@ class App {
         this.server = http.createServer(this.app);
         this.io = socketIO(this.server);
         this.cardController = new CardController();
+        this.menuController = new MenuController();
         
         // Configuration du logging
         this.logStream = fs.createWriteStream(path.join(__dirname, 'passenger.log'), { flags: 'a' });
@@ -71,6 +73,7 @@ class App {
     initializeRoutes() {
         // 1. Routes API en premier
         this.app.use('/click/api/cards', this.cardController.getRouter());
+        this.app.use('/click/api/menu', this.menuController.getRouter());
 
         // 2. Route pour main.css
         this.app.get('/main.css', (req, res) => {
