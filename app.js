@@ -3,12 +3,12 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const mysql = require('mysql2');
-const { Anthropic } = require('@anthropic-ai/sdk');
 const web3 = require('@solana/web3.js');
 
 // Configuration des middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
 
 // Configuration des en-têtes CORS
 app.use((req, res, next) => {
@@ -18,9 +18,9 @@ app.use((req, res, next) => {
     next();
 });
 
-// Route de base pour tester
+// Route de base pour servir index.html
 app.get('/', (req, res) => {
-    res.json({ message: 'Serveur opérationnel' });
+    res.sendFile('index.html', { root: './public' });
 });
 
 // Configuration de la base de données MySQL
