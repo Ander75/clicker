@@ -1,3 +1,5 @@
 # Configuration files
 config.js
 passenger.log
+modelaccounts.js
+serviceaccounts.js
