@@ -207,7 +207,7 @@ const cardStyles = `
 }
 
 .bet-button:hover {
-    background: rgb(138, 221, 105);
+    background: rgb(110, 158, 91);
     transform: translate(0, 0.25em);
 }
 

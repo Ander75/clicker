@@ -32,15 +32,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             result.data.cards.forEach(card => {
                 const cardDiv = document.createElement('div');
                 cardDiv.className = 'card';
-                cardDiv.setAttribute('data-card-id', card.id);
-                cardDiv.setAttribute('data-value', card.value);
-                cardDiv.setAttribute('data-type', card.type);
                 
-                // Use the template with the card data
-                cardDiv.innerHTML = result.data.template
-                    .replace('${id}', card.id)
-                    .replace('${type}', card.type)
-                    .replace('${value}', card.value);
+                // Use the template directly
+                cardDiv.innerHTML = result.data.template;
+                
+                // Update card content using the provided function
+                updateCardContent(cardDiv, card);
                 
                 cardsContainer.appendChild(cardDiv);
             });
