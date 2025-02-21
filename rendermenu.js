@@ -36,6 +36,7 @@ class MenuRenderer {
                     font-family: 'Inter', sans-serif;
                     font-size: 15px;
                     font-weight: 600;
+                    margin-top: -10px;
                     color: #382b22;
                     text-transform: uppercase;
                     padding: 1.25em 2em;

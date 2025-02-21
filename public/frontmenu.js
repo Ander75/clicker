@@ -40,15 +40,38 @@ class FrontMenu {
     // New method to update the button state
     updateButtonState(isConnected, address = '') {
         const connectWalletBtn = document.querySelector('.connect-wallet-btn');
+        if (!connectWalletBtn) return;
+
         if (isConnected) {
-            // Display a short version of the address
-            const shortAddress = `${address.slice(0, 4)}...${address.slice(-4)}`;
-            connectWalletBtn.textContent = `CONNECTED: ${shortAddress}`;
+            // En état connecté, afficher uniquement le logo Phantom
+            connectWalletBtn.innerHTML = `
+                <img src="/click/imgs/phantom.svg" alt="Phantom" style="
+                    height: 24px;
+                    width: 24px;
+                    filter: invert(1) brightness(0.3);
+                ">
+            `;
             connectWalletBtn.style.background = '#90EE90';
+            connectWalletBtn.style.padding = '8px'; // Ajuster le padding pour le logo
         } else {
-            connectWalletBtn.textContent = 'CONNECT WALLET';
+            // En état déconnecté, afficher CONNECT avec le logo
+            connectWalletBtn.innerHTML = `
+                <img src="/click/imgs/phantom.svg" alt="Phantom" style="
+                    height: 24px;
+                    width: 24px;
+                    margin-right: 8px;
+                    filter: invert(1) brightness(0.3);
+                ">
+                CONNECT
+            `;
             connectWalletBtn.style.background = '#fff0f0';
+            connectWalletBtn.style.padding = '8px 16px'; // Padding normal
         }
+
+        // Styles communs pour le bouton
+        connectWalletBtn.style.display = 'flex';
+        connectWalletBtn.style.alignItems = 'center';
+        connectWalletBtn.style.justifyContent = 'center';
     }
 
     setupEventListeners() {
@@ -61,11 +84,27 @@ class FrontMenu {
             
             switch(type) {
                 case 'wallet_changed':
-                    connectWalletBtn.textContent = 'WALLET CHANGED - RECONNECT';
+                    connectWalletBtn.innerHTML = `
+                        <img src="/click/imgs/phantom.svg" alt="Phantom" style="
+                            height: 24px;
+                            width: 24px;
+                            margin-right: 8px;
+                            filter: invert(1) brightness(0.3);
+                        ">
+                        RECONNECT
+                    `;
                     connectWalletBtn.style.background = '#ffcccc';
                     break;
                 default:
-                    connectWalletBtn.textContent = 'ERROR - RECONNECT';
+                    connectWalletBtn.innerHTML = `
+                        <img src="/click/imgs/phantom.svg" alt="Phantom" style="
+                            height: 24px;
+                            width: 24px;
+                            margin-right: 8px;
+                            filter: invert(1) brightness(0.3);
+                        ">
+                        ERROR
+                    `;
                     connectWalletBtn.style.background = '#ffcccc';
             }
         });
