@@ -3,3 +3,5 @@ config.js
 passenger.log
 modelaccounts.js
 serviceaccounts.js
+controlleraccounts.js
+modelcards.js
