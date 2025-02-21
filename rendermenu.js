@@ -8,6 +8,7 @@ class MenuRenderer {
                 .menu-container {
                     width: 100%;
                     max-width: 800px;
+                    z-index: 1000;
                     margin: 0 auto;
                     padding: 0 20px;
                 }
