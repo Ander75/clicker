@@ -27,8 +27,6 @@ class FrontMenu {
         let html = menuData.html;
         html = html.replace('{{logo}}', menuData.logo);
         this.menuContainer.innerHTML = html;
-
-        this.initializeEventListeners();
     }
 
     // Nouvelle méthode pour vérifier l'état initial
