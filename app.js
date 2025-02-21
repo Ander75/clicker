@@ -39,12 +39,21 @@ class App {
             next();
         });
 
-        // CORS headers avec X-Wallet-Address
+        // CORS configuration
         this.app.use((req, res, next) => {
-            res.header('Access-Control-Allow-Origin', '*');
-            res.header('Access-Control-Allow-Headers', 
-                'Origin, X-Requested-With, Content-Type, Accept, X-Wallet-Address');
-            res.header('Access-Control-Expose-Headers', 'X-Wallet-Address');
+            const allowedOrigins = [
+                'https://prismsol.xyz',
+                'https://prismsol.xyz/click',
+                'http://localhost:3000'  // For the local development
+            ];
+            
+            const origin = req.headers.origin;
+            if (allowedOrigins.includes(origin)) {
+                res.header('Access-Control-Allow-Origin', origin);
+                res.header('Access-Control-Allow-Headers', 
+                    'Origin, X-Requested-With, Content-Type, Accept, X-Wallet-Address');
+                res.header('Access-Control-Expose-Headers', 'X-Wallet-Address');
+            }
             next();
         });
 
@@ -101,17 +110,17 @@ class App {
     }
 
     initializeRoutes() {
-        // 1. Routes API en premier
+        // 1. API routes first
         this.app.use('/click/api/cards', this.cardController.getRouter());
         this.app.use('/click/api/menu', this.menuController.getRouter());
 
-        // 2. Route pour main.css
+        // 2. Route for main.css
         this.app.get('/main.css', (req, res) => {
             res.setHeader('Content-Type', 'text/css');
             res.sendFile('main.css', { root: path.join(__dirname, 'public') });
         });
 
-        // 3. Route catch-all pour /click en dernier
+        // 3. Route catch-all for /click in last
         this.app.get('/click/*', (req, res) => {
             res.sendFile('index.html', { root: path.join(__dirname, 'public') });
         });

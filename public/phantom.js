@@ -168,7 +168,7 @@ class Phantom {
             await this.provider.disconnect();
             this.walletAddress = null;
             this.signature = null;
-            // Nettoyer localStorage ET cookies
+            // Clear localStorage and cookies
             localStorage.removeItem('wallet_session');
             document.cookie = 'wallet_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
             return { success: true };
