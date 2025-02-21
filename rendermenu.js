@@ -40,7 +40,7 @@ class MenuRenderer {
                     margin-top: -10px;
                     color: #382b22;
                     text-transform: uppercase;
-                    padding: 1.25em 2em;
+                    padding: 0.5em 0.5em;
                     background: #fff0f0;
                     border: 2px solid #b18597;
                     border-radius: 5rem;
@@ -98,7 +98,11 @@ class MenuRenderer {
                     <div class="menu-wrapper">
                         <img src="{{logo}}" alt="Blast Logo" class="menu-logo">
                         <button class="connect-wallet-btn">
-                            CONNECT WALLET
+                            <img src="/click/imgs/phantom.svg" alt="Phantom" style="
+                                height: 24px;
+                                width: 24px;
+                                filter: invert(1) brightness(0.3);
+                            ">
                         </button>
                     </div>
                 </div>

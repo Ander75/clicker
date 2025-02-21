@@ -18,39 +18,19 @@ class Phantom {
             
             if (!this.isConnected()) return;
 
-            if (!newPublicKey) {
-                console.log('Wallet disconnected');
-                this.handleWalletChange(null);
-                return;
-            }
-
-            const newAddress = newPublicKey.toString();
-            const currentAddress = this.walletAddress;
-
-            if (newAddress !== currentAddress) {
-                console.log(`Wallet changed: ${currentAddress} -> ${newAddress}`);
-                this.handleWalletChange(newAddress);
-            }
+            // Simply disconnect when any wallet change is detected
+            console.log('Wallet changed - disconnecting user');
+            this.disconnect();
+            
+            // Emit a simple disconnection event
+            const event = new CustomEvent('walletConnectionChanged', {
+                detail: {
+                    connected: false,
+                    address: null
+                }
+            });
+            window.dispatchEvent(event);
         });
-    }
-
-    handleWalletChange(newAddress) {
-        // Sauvegarder l'ancienne adresse pour le log
-        const oldAddress = this.walletAddress;
-        
-        // Déconnecter et nettoyer
-        this.disconnect();
-        
-        // Émettre l'événement de changement
-        const event = new CustomEvent('walletError', {
-            detail: {
-                type: 'wallet_changed',
-                oldAddress: oldAddress,
-                newAddress: newAddress,
-                message: 'Wallet changed. Please reconnect with the original wallet.'
-            }
-        });
-        window.dispatchEvent(event);
     }
 
     // Verify if a session already exists
@@ -109,39 +89,45 @@ class Phantom {
 
     async connectWallet() {
         try {
-            // 1. Request the connection to the wallet (without automatic connection)
+            // 1. Request the connection to the wallet
             const response = await this.provider.connect({
-                onlyIfTrusted: false  // Force the connection request
+                onlyIfTrusted: false
             });
             const walletAddress = response.publicKey.toString();
             
-            // 2. Create the message to sign
-            const message = `Welcome to Blast! Please sign this message to confirm your identity.\n\nWallet: ${walletAddress}\nTimestamp: ${Date.now()}`;
+            // 2. Create a clear message for the user to sign
+            const message = `Welcome to Blast! Please sign this message to authenticate.\n\nWallet: ${walletAddress}\nTimestamp: ${Date.now()}`;
             const encodedMessage = new TextEncoder().encode(message);
 
-            // 3. Request the signature
-            const signedMessage = await this.provider.signMessage(encodedMessage, "utf8");
+            // 3. Request the signature using the recommended method
+            const signedMessage = await this.provider.request({
+                method: "signMessage",
+                params: {
+                    message: encodedMessage,
+                    display: "utf8"
+                },
+            });
             
             // 4. Store the session information
             const sessionData = {
                 address: walletAddress,
-                signature: signedMessage,
+                signature: signedMessage.signature,
                 timestamp: Date.now()
             };
             
-            // 5. Save the session information in the localStorage
+            // 5. Save in localStorage and cookies
             const sessionStr = JSON.stringify(sessionData);
             localStorage.setItem('wallet_session', sessionStr);
             this.setCookie('wallet_session', sessionStr);
             
-            // 6. Update the class state
+            // 6. Update class state
             this.walletAddress = walletAddress;
-            this.signature = signedMessage;
+            this.signature = signedMessage.signature;
             
             return {
                 success: true,
                 address: walletAddress,
-                signature: signedMessage
+                signature: signedMessage.signature
             };
 
         } catch (error) {

@@ -43,6 +43,10 @@ class FrontMenu {
         if (!connectWalletBtn) return;
 
         if (isConnected) {
+            // Format the address to show only first and last characters
+            const shortAddress = address ? 
+                `${address.slice(0, 4)}...${address.slice(-4)}` : '';
+
             // Connected state with dropdown menu
             connectWalletBtn.innerHTML = `
                 <img src="/click/imgs/phantom.svg" alt="Phantom" style="
@@ -51,6 +55,9 @@ class FrontMenu {
                     filter: invert(1) brightness(0.3);
                 ">
                 <div class="wallet-dropdown" style="display: none;">
+                    <div class="dropdown-item address-item">
+                        <span>${shortAddress}</span>
+                    </div>
                     <div class="dropdown-item profile-item">
                         <img src="/click/imgs/profile.svg" alt="Profile">
                         Profile
@@ -91,13 +98,11 @@ class FrontMenu {
                 <img src="/click/imgs/phantom.svg" alt="Phantom" style="
                     height: 24px;
                     width: 24px;
-                    margin-right: 8px;
                     filter: invert(1) brightness(0.3);
                 ">
-                CONNECT
             `;
             connectWalletBtn.style.background = '#fff0f0';
-            connectWalletBtn.style.padding = '8px 16px'; // Padding normal
+            connectWalletBtn.style.padding = '8px'; // Adjusted padding for icon only
         }
 
         // Common styles for the button
@@ -157,46 +162,22 @@ class FrontMenu {
                     height: 16px;
                     filter: invert(1) brightness(0.3);
                 }
+                .address-item {
+                    border-bottom: 1px solid #b18597;
+                    color: #666;
+                    font-size: 0.9em;
+                    justify-content: center;
+                    cursor: default;
+                }
+                .address-item:hover {
+                    background: none;
+                }
             `;
             document.head.appendChild(styleSheet);
         }
     }
 
     setupEventListeners() {
-        // Listen for wallet errors
-        window.addEventListener('walletError', (event) => {
-            const { type, message } = event.detail;
-            console.error('Wallet error:', message);
-            
-            const connectWalletBtn = document.querySelector('.connect-wallet-btn');
-            
-            switch(type) {
-                case 'wallet_changed':
-                    connectWalletBtn.innerHTML = `
-                        <img src="/click/imgs/phantom.svg" alt="Phantom" style="
-                            height: 24px;
-                            width: 24px;
-                            margin-right: 8px;
-                            filter: invert(1) brightness(0.3);
-                        ">
-                        RECONNECT
-                    `;
-                    connectWalletBtn.style.background = '#ffcccc';
-                    break;
-                default:
-                    connectWalletBtn.innerHTML = `
-                        <img src="/click/imgs/phantom.svg" alt="Phantom" style="
-                            height: 24px;
-                            width: 24px;
-                            margin-right: 8px;
-                            filter: invert(1) brightness(0.3);
-                        ">
-                        ERROR
-                    `;
-                    connectWalletBtn.style.background = '#ffcccc';
-            }
-        });
-
         // Listen for wallet state changes
         window.addEventListener('walletConnectionChanged', (event) => {
             const { connected, address } = event.detail;
