@@ -8,7 +8,49 @@ class Phantom {
         }
 
         this.provider = phantom.solana;
+        this.setupAccountChangeListener();
         this.checkExistingSession();
+    }
+
+    setupAccountChangeListener() {
+        this.provider.on('accountChanged', (newPublicKey) => {
+            console.log('Account change detected');
+            
+            if (!this.isConnected()) return;
+
+            if (!newPublicKey) {
+                console.log('Wallet disconnected');
+                this.handleWalletChange(null);
+                return;
+            }
+
+            const newAddress = newPublicKey.toString();
+            const currentAddress = this.walletAddress;
+
+            if (newAddress !== currentAddress) {
+                console.log(`Wallet changed: ${currentAddress} -> ${newAddress}`);
+                this.handleWalletChange(newAddress);
+            }
+        });
+    }
+
+    handleWalletChange(newAddress) {
+        // Sauvegarder l'ancienne adresse pour le log
+        const oldAddress = this.walletAddress;
+        
+        // Déconnecter et nettoyer
+        this.disconnect();
+        
+        // Émettre l'événement de changement
+        const event = new CustomEvent('walletError', {
+            detail: {
+                type: 'wallet_changed',
+                oldAddress: oldAddress,
+                newAddress: newAddress,
+                message: 'Wallet changed. Please reconnect with the original wallet.'
+            }
+        });
+        window.dispatchEvent(event);
     }
 
     // Verify if a session already exists
@@ -163,9 +205,9 @@ class Phantom {
 // Initialize Phantom instance globally
 document.addEventListener('DOMContentLoaded', () => {
     try {
-        // Créer une instance globale de notre classe
+        // Create a global instance of our class
         const phantomWallet = new Phantom();
-        // Exposer l'instance
+        // Expose the instance
         window.phantomWallet = phantomWallet;
     } catch (error) {
         console.error('Failed to initialize Phantom:', error);

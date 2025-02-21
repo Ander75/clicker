@@ -10,7 +10,7 @@ class FrontMenu {
             const response = await fetch('/click/api/menu');
             const menuData = await response.json();
             this.render(menuData);
-            // Check the connection state after rendering
+            this.setupEventListeners();
             this.checkInitialConnectionState();
         } catch (error) {
             console.error('Error loading menu:', error);
@@ -53,20 +53,22 @@ class FrontMenu {
         }
     }
 
-    async initializeEventListeners() {
-        const connectWalletBtn = document.querySelector('.connect-wallet-btn');
-        connectWalletBtn.addEventListener('click', async () => {
-            try {
-                if (!window.phantomWallet) {
-                    throw new Error("Phantom wallet is not initialized!");
-                }
-
-                const result = await window.phantomWallet.connectWallet();
-                this.updateButtonState(true, result.address);
-                
-            } catch (error) {
-                console.error('Error connecting wallet:', error);
-                this.updateButtonState(false);
+    setupEventListeners() {
+        // Listen for wallet errors
+        window.addEventListener('walletError', (event) => {
+            const { type, message } = event.detail;
+            console.error('Wallet error:', message);
+            
+            const connectWalletBtn = document.querySelector('.connect-wallet-btn');
+            
+            switch(type) {
+                case 'wallet_changed':
+                    connectWalletBtn.textContent = 'WALLET CHANGED - RECONNECT';
+                    connectWalletBtn.style.background = '#ffcccc';
+                    break;
+                default:
+                    connectWalletBtn.textContent = 'ERROR - RECONNECT';
+                    connectWalletBtn.style.background = '#ffcccc';
             }
         });
 
@@ -75,6 +77,26 @@ class FrontMenu {
             const { connected, address } = event.detail;
             this.updateButtonState(connected, address);
         });
+
+        // Handle button click
+        const connectWalletBtn = document.querySelector('.connect-wallet-btn');
+        if (connectWalletBtn) {
+            connectWalletBtn.addEventListener('click', this.handleWalletConnection.bind(this));
+        }
+    }
+
+    async handleWalletConnection() {
+        try {
+            if (!window.phantomWallet) {
+                throw new Error("Phantom wallet is not initialized!");
+            }
+
+            const result = await window.phantomWallet.connectWallet();
+            this.updateButtonState(true, result.address);
+        } catch (error) {
+            console.error('Error connecting wallet:', error);
+            this.updateButtonState(false);
+        }
     }
 }
 
