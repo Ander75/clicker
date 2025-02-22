@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     async function fetchCards() {
         try {
+            console.log('Fetching cards...');
             const response = await fetch('/click/api/cards/card', {
                 headers: {
                     'Accept': 'application/json'
@@ -13,7 +14,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            return await response.json();
+            
+            const data = await response.json();
+            console.log('Raw response from server:', data);
+            return data;
         } catch (error) {
             console.error('Error when fetching cards:', error);
             throw error;

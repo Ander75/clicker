@@ -11,13 +11,10 @@ class CardController {
 
     initializeRoutes() {
         // Route pour obtenir les cartes
-        this.router.get('/card', (req, res) => {
+        this.router.get('/card', async (req, res) => {
             try {
-                const result = this.cardService.getAllCards();
-                res.json({ 
-                    status: 'success',
-                    data: result
-                });
+                const result = await this.cardService.getAllCards();
+                res.json(result);
             } catch (error) {
                 res.status(500).json({
                     status: 'error',

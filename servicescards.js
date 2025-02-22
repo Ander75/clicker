@@ -13,61 +13,45 @@ class CardService {
     // Initialization of cards with real game data
     async initializeCards() {
         try {
-            this.cards = [];
+            const cards = [];
             
             // Get active game first
             const activeGame = await this.gameModel.getActiveGame();
             if (activeGame) {
-                // Calcul du temps restant pour le jeu actif
-                const now = new Date();
-                const lastClick = new Date(activeGame.gameSpecific.lastClick);
-                const timeElapsed = Math.floor((now - lastClick) / 1000);
-                const timeRemaining = activeGame.gameSpecific.timeRemaining - timeElapsed;
-
-                // Mise à jour du statut et du temps restant
-                activeGame.status = timeRemaining > 0 ? 'active' : 'finished';
-                activeGame.gameSpecific.timeRemaining = Math.max(0, timeRemaining);
-
-                console.log('Active game processing:', {
-                    id: activeGame.gameSpecific.gameId,
-                    timeElapsed: `${timeElapsed} seconds`,
-                    timeRemaining: `${timeRemaining} seconds`,
-                    status: activeGame.status
-                });
-
-                this.cards.push(activeGame);
+                console.log('Active game found:', activeGame);
+                
+                // Check if the active game should be finished
+                const lastClickTime = new Date(activeGame.gameSpecific.lastClick).getTime();
+                const currentTime = new Date().getTime();
+                const elapsedSeconds = Math.floor((currentTime - lastClickTime) / 1000);
+                const maxTime = activeGame.gameSpecific.timeRemaining; // max_time from DB
+                
+                if (elapsedSeconds >= maxTime) {
+                    console.log(`Game ${activeGame.id} has expired. Last click was ${elapsedSeconds}s ago. Max time: ${maxTime}s`);
+                    // Mark the game as finished
+                    await this.gameModel.finishGame(activeGame.id);
+                    // Get the new active game if there is one
+                    const newActiveGame = await this.gameModel.getActiveGame();
+                    if (newActiveGame) {
+                        cards.push(newActiveGame);
+                    }
+                } else {
+                    // The game is still active
+                    // Update the time remaining
+                    activeGame.gameSpecific.timeRemaining = maxTime - elapsedSeconds;
+                    cards.push(activeGame);
+                }
             }
 
             // Get game history
             const gameHistory = await this.gameModel.getGameHistory(4);
-            if (gameHistory.length > 0) {
-                gameHistory.forEach(game => {
-                    // Pour les jeux terminés, on garde timeRemaining à 0
-                    game.gameSpecific.timeRemaining = 0;
-                    game.status = 'finished';
-                    
-                    console.log('History game processing:', {
-                        id: game.gameSpecific.gameId,
-                        status: game.status,
-                        timeRemaining: game.gameSpecific.timeRemaining
-                    });
-                });
-
-                // Filtrer les doublons
-                const uniqueGames = gameHistory.filter(game => 
-                    !this.cards.some(existingGame => existingGame.id === game.id)
-                );
-                this.cards.push(...uniqueGames);
+            if (gameHistory && gameHistory.length > 0) {
+                console.log('Game history found:', gameHistory);
+                cards.push(...gameHistory);
             }
-            
-            // Log détaillé de tous les jeux
-            console.log('All games status:', this.cards.map(card => ({
-                id: card.gameSpecific.gameId,
-                status: card.status,
-                timeRemaining: card.gameSpecific.timeRemaining
-            })));
-            
-            return this.cards;
+
+            console.log('Final cards array:', cards);
+            return cards;
         } catch (error) {
             const errorMessage = `[${new Date().toISOString()}] Error initializing cards: ${error.stack}\n`;
             this.logStream.write(errorMessage);
@@ -79,33 +63,30 @@ class CardService {
     // Get all cards with template and styles for frontend
     async getAllCards() {
         try {
-            await this.initializeCards(); // Ensure we have latest data
+            console.log('Starting getAllCards...');
             
-            // Debug log pour voir ce qu'on a réellement
-            console.log('Current cards state:', {
-                cardsArray: this.cards,
-                length: this.cards.length
-            });
+            // Get the cards
+            const cards = await this.initializeCards();
+            console.log('Cards received from initializeCards:', cards);
 
-            const response = {
-                status: 'success',
-                data: {
-                    cards: this.cards || [], // S'assurer que c'est toujours un tableau
-                    template: cardTemplate,
-                    styles: cardStyles
-                }
+            // Build the response with an explicit structure
+            const responseData = {
+                cards: cards || [], // Ensure we always have an array
+                template: cardTemplate,
+                styles: cardStyles
             };
 
-            // Log pour vérifier la structure finale
-            console.log('Response to frontend:', {
-                status: response.status,
-                cardsCount: response.data.cards.length,
-                hasTemplate: !!response.data.template,
-                hasStyles: !!response.data.styles,
-                firstCard: response.data.cards[0] || 'no card'
+            // Log for verification
+            console.log('Response data before sending:', {
+                cardsCount: responseData.cards.length,
+                hasTemplate: !!responseData.template,
+                hasStyles: !!responseData.styles
             });
 
-            return response;
+            return {
+                status: 'success',
+                data: responseData
+            };
         } catch (error) {
             console.error('Error in getAllCards:', error);
             return {
