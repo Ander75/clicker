@@ -9,7 +9,7 @@ const cardTemplate = `
         
         <div class="game-card__info">
             <div class="game-id">GAME ID #<span class="game-id__value"></span></div>
-            <div class="game-title">MAKE SOLANA GREAT AGAIN</div>
+            <div class="game-title"></div>
             
             <div class="jackpot-section">
                 <div class="jackpot-label">Current Jackpot</div>

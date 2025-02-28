@@ -62,9 +62,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Update game ID
         cardElement.querySelector('.game-id__value').textContent = cardData.gameSpecific.gameId;
         
-        // Update jackpot value
-        const jackpotValue = parseFloat(cardData.value).toFixed(9);
-        cardElement.querySelector('.jackpot-value').textContent = `${jackpotValue} SOL`;
+        // Update jackpot value (déjà formaté par le back)
+        cardElement.querySelector('.jackpot-value').textContent = cardData.value;
         
         // Update clicks
         cardElement.querySelector('.clicks-value').textContent = cardData.gameSpecific.totalClicks;
@@ -78,8 +77,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             startCardTimer(cardElement, cardData);
         }
         
-        // Update bet amount
-        cardElement.querySelector('.bet-amount').textContent = `${jackpotValue} SOL`;
+        // Update bet amount (déjà formaté par le back)
+        cardElement.querySelector('.bet-amount').textContent = cardData.gameSpecific.betAmount;
 
         // Debug log
         console.log(`Card ${cardData.gameSpecific.gameId} updated:`, {

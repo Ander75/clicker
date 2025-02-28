@@ -15,39 +15,35 @@ class CardService {
         try {
             const cards = [];
             
-            // Get active game first
-            const activeGame = await this.gameModel.getActiveGame();
-            if (activeGame) {
-                console.log('Active game found:', activeGame);
+            // Get active games
+            const activeGames = await this.gameModel.getActiveGame();
+            if (activeGames && activeGames.length > 0) {
+                console.log('Active games found:', activeGames);
                 
-                // Check if the active game should be finished
-                const lastClickTime = new Date(activeGame.gameSpecific.lastClick).getTime();
-                const currentTime = new Date().getTime();
-                const elapsedSeconds = Math.floor((currentTime - lastClickTime) / 1000);
-                const maxTime = activeGame.gameSpecific.timeRemaining; // max_time from DB
-                
-                if (elapsedSeconds >= maxTime) {
-                    console.log(`Game ${activeGame.id} has expired. Last click was ${elapsedSeconds}s ago. Max time: ${maxTime}s`);
-                    // Mark the game as finished
-                    await this.gameModel.finishGame(activeGame.id);
-                    // Get the new active game if there is one
-                    const newActiveGame = await this.gameModel.getActiveGame();
-                    if (newActiveGame) {
-                        cards.push(newActiveGame);
+                // Traiter chaque jeu actif
+                for (const activeGame of activeGames) {
+                    const lastClickTime = new Date(activeGame.gameSpecific.lastClick).getTime();
+                    const currentTime = new Date().getTime();
+                    const elapsedSeconds = Math.floor((currentTime - lastClickTime) / 1000);
+                    const maxTime = activeGame.gameSpecific.timeRemaining;
+                    
+                    if (elapsedSeconds >= maxTime) {
+                        console.log(`Game ${activeGame.id} has expired. Last click was ${elapsedSeconds}s ago. Max time: ${maxTime}s`);
+                        await this.gameModel.finishGame(activeGame.id);
+                    } else {
+                        activeGame.gameSpecific.timeRemaining = maxTime - elapsedSeconds;
+                        cards.push(this.formatGameForDisplay(activeGame));
                     }
-                } else {
-                    // The game is still active
-                    // Update the time remaining
-                    activeGame.gameSpecific.timeRemaining = maxTime - elapsedSeconds;
-                    cards.push(activeGame);
                 }
             }
 
             // Get game history
             const gameHistory = await this.gameModel.getGameHistory(4);
             if (gameHistory && gameHistory.length > 0) {
-                console.log('Game history found:', gameHistory);
-                cards.push(...gameHistory);
+                const formattedHistory = gameHistory.map(game => 
+                    this.formatGameForDisplay(game)
+                );
+                cards.push(...formattedHistory);
             }
 
             console.log('Final cards array:', cards);
@@ -135,6 +131,42 @@ class CardService {
         container.appendChild(cardElement);
         
         return cardElement;
+    }
+
+    // Utility method to format SOL values
+    formatSolAmount(value) {
+        // Convert to number and limit to 3 decimal places
+        const formattedValue = parseFloat(parseFloat(value).toFixed(3));
+        
+        // If the value is 0, return "0 SOL"
+        if (formattedValue === 0) {
+            return "0 SOL";
+        }
+        
+        // Convert to string and remove unnecessary zeros after the decimal point
+        const valueString = formattedValue.toString();
+        
+        // If there are no decimal places, return the integer
+        if (!valueString.includes('.')) {
+            return `${valueString} SOL`;
+        }
+        
+        // Remove trailing zeros
+        const trimmedValue = valueString.replace(/\.?0+$/, '');
+        
+        return `${trimmedValue} SOL`;
+    }
+
+    // Format game data for display
+    formatGameForDisplay(game) {
+        return {
+            ...game,
+            value: this.formatSolAmount(game.value),
+            gameSpecific: {
+                ...game.gameSpecific,
+                betAmount: this.formatSolAmount(0.001) // Fixed bet amount
+            }
+        };
     }
 }
 
